@@ -1,7 +1,7 @@
 import sqlite3
 
 def create_tables():
-    conn = sqlite3.connect('../invoices_data.db')
+    conn = sqlite3.connect('invoices_data.db')
     cursor = conn.cursor()
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS invoices (

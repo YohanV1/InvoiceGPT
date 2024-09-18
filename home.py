@@ -52,8 +52,8 @@ def logout():
 
 logout_page = st.Page(logout, title="Log out", icon=":material/logout:")
 settings = st.Page("navigation_pages/settings.py", title="Settings", icon=":material/settings:")
-view_invoices = st.Page("navigation_pages/view_invoices.py", title="Recent Invoices", icon=":material/folder:")
-view_invoice_database = st.Page("navigation_pages/view_invoice_database.py", title="My Database", icon=":material/visibility:")
+view_invoices = st.Page("navigation_pages/recent_invoices.py", title="Recent Invoices", icon=":material/folder:")
+view_invoice_database = st.Page("navigation_pages/my_database.py", title="My Database", icon=":material/visibility:")
 chat_with_ai = st.Page("navigation_pages/ai_chat.py", title="Chat with AI", icon=":material/chat:")
 about_page = st.Page(about, title="Home", icon=":material/home:")
 

@@ -26,7 +26,7 @@ def ocr_gpt(image_path):
     }
 
     payload = {
-        "model": "gpt-4o",
+        "model": "gpt-4o-mini",
         "messages": [
             {
                 "role": "user",
@@ -99,7 +99,7 @@ def ocr_gpt(image_path):
         billing_address
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ''', (
-        image_path.split('/')[-1].split('.')[0],
+        original.split('/')[1],
         invoice_dict.get('Invoice Number', 'NULL'),
         invoice_dict.get('Invoice Date', 'NULL'),
         invoice_dict.get('Due Date', 'NULL'),
@@ -129,7 +129,7 @@ def ocr_gpt(image_path):
         cursor.execute('''
         INSERT INTO line_items (invoice_file_name, invoice_id, product_service, quantity, unit_price)
         VALUES (?, ?, ?, ?, ?)
-        ''', (image_path.split('/')[-1].split('.')[0], invoice_id, item, quantity, price))
+        ''', (original.split('/')[1], invoice_id, item, quantity, price))
 
     conn.commit()
     conn.close()
