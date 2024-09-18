@@ -74,7 +74,7 @@ items = [item.strip() for item in invoice_dict['List of Products/Services'].spli
 quantities = [quantity.strip() for quantity in invoice_dict['List of Quantities'].split(',,,')]
 prices = [price.strip() for price in invoice_dict['List of Unit Prices'].split(',,,')]
 
-conn = sqlite3.connect('invoices_data.db')
+conn = sqlite3.connect('../invoices_data.db')
 cursor = conn.cursor()
 
 cursor.execute('''
