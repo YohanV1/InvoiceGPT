@@ -67,6 +67,8 @@ def delete_invoice(path, name):
             query2 = "DELETE FROM line_items WHERE invoice_file_name = ?"
             cursor.execute(query1, (name,))
             cursor.execute(query2, (name,))
+            conn.commit()
+            conn.close()
             os.remove(path)
             st.rerun()
     with col2:
@@ -129,6 +131,7 @@ if len(os.listdir(directory)) != 0:
                         )
                 with col3_4:
                     if st.button("️Delete", key=f"delete_{filename}"):
+                        st.write(filename)
                         delete_invoice(file_path, filename)
 else:
     st.info("There is no invoice data to display at this moment. Upload an invoice and come back.")

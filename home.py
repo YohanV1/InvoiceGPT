@@ -94,9 +94,9 @@ def home_page():
 
     with col7:
         if st.session_state.status:
-            st.subheader('Get started!')
+            st.subheader('Get started.')
         else:
-            st.subheader('Sign in to get started!')
+            st.subheader('Sign in to get started.')
 
     with col8:
         pass
@@ -109,7 +109,7 @@ def home_page():
             if not os.path.exists(UPLOAD_DIR):
                 os.makedirs(UPLOAD_DIR)
             with st.form("my-form", clear_on_submit=True, border=False):
-                st.write("Upload an image or PDF of your invoice and automatically extract its data!")
+                st.write("Upload an image or PDF of your invoice and automatically extract its data.")
                 uploaded_files = st.file_uploader("Choose an invoice file (PDF or Image)", type=["pdf", "jpg", "jpeg", "png"],
                                                   accept_multiple_files=True, label_visibility="collapsed")
                 submitted = st.form_submit_button("Process invoice")
@@ -119,24 +119,25 @@ def home_page():
                         if uploaded_file.type in ["image/jpeg", "image/png", "image/jpg"]:
                             image = Image.open(uploaded_file)
                             image.save(file_path)
-                            ocr_gpt(file_path)
-                            st.success("Image invoice successfully uploaded!")
+                            with st.spinner("Uploading..."):
+                                ocr_gpt(file_path)
+                            st.success("Image invoice successfully uploaded. Navigate with the sidebar for insights.")
 
                         elif uploaded_file.type == "application/pdf":
                             with open(file_path, "wb") as f:
                                 f.write(uploaded_file.getbuffer())
                             with st.spinner("Uploading..."):
                                 ocr_gpt(file_path)
-                            st.success("PDF invoice successfully uploaded. Navigate with the sidebar for insights!")
+                            st.success("PDF invoice successfully uploaded. Navigate with the sidebar for insights.")
             create_tables()
         else:
             with st.form("my-form", clear_on_submit=True, border=False):
-                st.caption("Upload an image or PDF of your invoice and automatically extract its data!")
+                st.caption("Upload an image or PDF of your invoice and automatically extract its data.")
                 st.file_uploader("Choose an invoice file (PDF or Image)", type=["pdf", "jpg", "jpeg", "png"],
                                                   accept_multiple_files=True, label_visibility="collapsed", disabled=True)
                 st.form_submit_button("Process invoice", disabled=True)
     with col10:
-        st.write("Here are some sample queries for reference!")
+        st.write("Here are some sample queries for reference.")
         st.code("How much have I spent on taxes in the past month?", language="none")
         st.code("When was the last time I got Pizza?", language="none")
         st.code("What was my total expenditure last month?", language="none")
