@@ -4,66 +4,140 @@ from ocr_gptvision import ocr_gpt
 from PIL import Image
 import os
 
-if "status" not in st.session_state:
-    st.session_state.status = False
-
-st.set_page_config(layout="wide", page_title='InvoiceGPT', page_icon='logo_images/invoicegpt_icon.png')
-st.logo("logo_images/invoicegpt_logo.png", icon_image="logo_images/invoicegpt_icon.png")
-
-def about():
-    st.image("logo_images/invoicegpt_logo_full.png", width=400)
-    st.write("InvoiceGPT is an AI-driven application designed to streamline bill and invoice management. Utilizing GPT-4 Vision, InvoiceGPT accurately extracts "
-             "and contextualizes text from images, addressing the inefficiencies and errors of manual data entry. Invoice also offers interactive querying capabilities, enabling users to "
-             "obtain precise answers about their bills.")
+def home_page():
     if not st.session_state.status:
-        if st.button("Login"):
-            st.session_state.status = True
-            st.rerun()
-    if st.session_state.status:
-        UPLOAD_DIR = "uploaded_invoices"
-        if not os.path.exists(UPLOAD_DIR):
-            os.makedirs(UPLOAD_DIR)
-        with st.form("my-form", clear_on_submit=True):
-            st.subheader("Process Invoice")
-            st.caption("Upload an image or PDF of your invoice and automatically extract its data!")
-            uploaded_files = st.file_uploader("Choose an invoice file (PDF or Image)", type=["pdf", "jpg", "jpeg", "png"],
-                                              accept_multiple_files=True, label_visibility="collapsed")
-            submitted = st.form_submit_button("Upload invoice")
-            for uploaded_file in uploaded_files:
-                if submitted and uploaded_file is not None:
-                    file_path = os.path.join(UPLOAD_DIR, uploaded_file.name)
-                    if uploaded_file.type in ["image/jpeg", "image/png", "image/jpg"]:
-                        image = Image.open(uploaded_file)
-                        image.save(file_path)
-                        ocr_gpt(file_path)
-                        st.success("Image invoice successfully uploaded!")
+        col1, col2, col3 = st.columns([3,11,1], vertical_alignment='center')
+        with col1:
+            st.title("InvoiceGPT")
 
-                    elif uploaded_file.type == "application/pdf":
-                        with open(file_path, "wb") as f:
-                            f.write(uploaded_file.getbuffer())
-                        ocr_gpt(file_path)
-                        st.success("PDF invoice successfully uploaded!")
-        create_tables()
+        with col2:
+            pass
 
-def logout():
-    st.session_state.status = False
-    st.rerun()
+        with col3:
+            if not st.session_state.status:
+                if st.button("Sign in"):
+                    st.session_state.status = True
+                    st.rerun()
+            else:
+                pass
+    else:
+        st.title("InvoiceGPT")
 
-logout_page = st.Page(logout, title="Log out", icon=":material/logout:")
-settings = st.Page("navigation_pages/settings.py", title="Settings", icon=":material/settings:")
-view_invoices = st.Page("navigation_pages/recent_invoices.py", title="Recent Invoices", icon=":material/folder:")
-view_invoice_database = st.Page("navigation_pages/my_database.py", title="My Database", icon=":material/visibility:")
-chat_with_ai = st.Page("navigation_pages/ai_chat.py", title="Chat with AI", icon=":material/chat:")
-about_page = st.Page(about, title="Home", icon=":material/home:")
+    st.header("AI-Powered Insights for Your Invoices")
+    st.write("InvoiceGPT is your intelligent solution for streamlined bill and invoice management. "
+             "Harnessing the power of GPT-4 Vision, our application revolutionizes how you handle financial documents. "
+             "Say goodbye to tedious manual data entry and hello to accurate, efficient, and insightful invoice processing. "
+             "InvoiceGPT doesn't just digitize your bills – it understands them, providing you with actionable insights "
+             "and powerful analytical capabilities to transform your financial management.")
 
-account_pages = [logout_page, settings]
-invoice_pages = [about_page, view_invoices, view_invoice_database, chat_with_ai]
+    col1, col2, col3 = st.columns(3, gap="medium")
 
-page_dict = {}
-if st.session_state.status:
-    page_dict["Explore"] = invoice_pages
-    pg = st.navigation(page_dict | {"Account": account_pages})
-else:
-    pg = st.navigation([st.Page(about)])
+    with col1:
+        container1 = st.container(border=True, height=200)
+        col1_1, col1_2 = container1.columns([1, 7], vertical_alignment='center')
+        with col1_1:
+            st.image("logo_images/Upload icon.png", width=40)
+        with col1_2:
+            st.subheader('Store Invoices')
+        container1.write('Effortlessly upload and securely store your financial documents in one centralized location, ensuring easy access and organization.')
 
-pg.run()
+    with col2:
+        container2 = st.container(border=True, height=200)
+        col2_1, col2_2 = container2.columns([1, 7], vertical_alignment='center')
+        with col2_1:
+            st.image("logo_images/Lightbulb icon.png", width=40)
+        with col2_2:
+            st.subheader('Smart Processing')
+        container2.write('Experience cutting-edge OCR and AI technology that accurately extracts, interprets, and categorizes data from your invoices with minimal manual input.')
+
+    with col3:
+        container3 = st.container(border=True, height=200)
+        col3_1, col3_2 = container3.columns([1, 7], vertical_alignment='center')
+        with col3_1:
+            st.image("logo_images/Content cut 24dp.png", width=40)
+        with col3_2:
+            st.subheader('Auto-Splitting')
+        container3.write('Save time with intelligent auto-splitting capabilities that accurately categorize and allocate invoice items across both PDF and image formats.')
+
+    col4, col5, col6 = st.columns(3, gap="medium")
+
+    with col4:
+        container4 = st.container(border=True, height=200)
+        col4_1, col4_2 = container4.columns([1, 7], vertical_alignment='center')
+        with col4_1:
+            st.image("logo_images/Satisfied icon.png", width=40)
+        with col4_2:
+            st.subheader('User-Friendly')
+        container4.write('Navigate our intuitive interface designed for users of all skill levels, making invoice management accessible and effortless for everyone.')
+
+    with col5:
+        container5 = st.container(border=True, height=200)
+        col5_1, col5_2 = container5.columns([1, 7], vertical_alignment='center')
+        with col5_1:
+            st.image("logo_images/Search icon.png", width=40)
+        with col5_2:
+            st.subheader('AI Querying')
+        container5.write('Engage with our AI to ask specific questions about your bills and receive instant, accurate answers, enhancing your financial understanding.')
+
+    with col6:
+        container6 = st.container(border=True, height=200)
+        col6_1, col6_2 = container6.columns([1, 7], vertical_alignment='center')
+        with col6_1:
+            st.image("logo_images/Analytics icon.png", width=40)
+        with col6_2:
+            st.subheader('Data Insights')
+        container6.write('Unlock valuable insights from your financial data with advanced analytics tools, empowering you to make informed business decisions.')
+
+    st.divider()
+
+    col7, col8 = st.columns(2)
+
+    with col7:
+        if st.session_state.status:
+            st.subheader('Get started!')
+        else:
+            st.subheader('Sign in to get started!')
+
+    with col8:
+        pass
+
+    col9, col10 = st.columns(2, gap="large")
+
+    with col9:
+        if st.session_state.status:
+            UPLOAD_DIR = "uploaded_invoices"
+            if not os.path.exists(UPLOAD_DIR):
+                os.makedirs(UPLOAD_DIR)
+            with st.form("my-form", clear_on_submit=True, border=False):
+                st.write("Upload an image or PDF of your invoice and automatically extract its data!")
+                uploaded_files = st.file_uploader("Choose an invoice file (PDF or Image)", type=["pdf", "jpg", "jpeg", "png"],
+                                                  accept_multiple_files=True, label_visibility="collapsed")
+                submitted = st.form_submit_button("Process invoice")
+                for uploaded_file in uploaded_files:
+                    if submitted and uploaded_file is not None:
+                        file_path = os.path.join(UPLOAD_DIR, uploaded_file.name)
+                        if uploaded_file.type in ["image/jpeg", "image/png", "image/jpg"]:
+                            image = Image.open(uploaded_file)
+                            image.save(file_path)
+                            ocr_gpt(file_path)
+                            st.success("Image invoice successfully uploaded!")
+
+                        elif uploaded_file.type == "application/pdf":
+                            with open(file_path, "wb") as f:
+                                f.write(uploaded_file.getbuffer())
+                            ocr_gpt(file_path)
+                            st.success("PDF invoice successfully uploaded!")
+            create_tables()
+        else:
+            with st.form("my-form", clear_on_submit=True, border=False):
+                st.caption("Upload an image or PDF of your invoice and automatically extract its data!")
+                st.file_uploader("Choose an invoice file (PDF or Image)", type=["pdf", "jpg", "jpeg", "png"],
+                                                  accept_multiple_files=True, label_visibility="collapsed", disabled=True)
+                st.form_submit_button("Process invoice", disabled=True)
+    with col10:
+        st.write("Here are some sample queries for reference!")
+        st.code("How much have I spent on taxes in the past month?", language="none")
+        st.code("When was the last time I got Pizza?", language="none")
+        st.code("What was my total expenditure last month?", language="none")
+
+
