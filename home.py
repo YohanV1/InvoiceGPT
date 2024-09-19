@@ -125,8 +125,9 @@ def home_page():
                         elif uploaded_file.type == "application/pdf":
                             with open(file_path, "wb") as f:
                                 f.write(uploaded_file.getbuffer())
-                            ocr_gpt(file_path)
-                            st.success("PDF invoice successfully uploaded!")
+                            with st.spinner("Uploading..."):
+                                ocr_gpt(file_path)
+                            st.success("PDF invoice successfully uploaded. Navigate with the sidebar for insights!")
             create_tables()
         else:
             with st.form("my-form", clear_on_submit=True, border=False):
@@ -139,5 +140,3 @@ def home_page():
         st.code("How much have I spent on taxes in the past month?", language="none")
         st.code("When was the last time I got Pizza?", language="none")
         st.code("What was my total expenditure last month?", language="none")
-
-

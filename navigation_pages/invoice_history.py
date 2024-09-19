@@ -8,7 +8,7 @@ import pandas as pd
 directory = 'uploaded_invoices'
 supported_extensions = ('.jpg', '.jpeg', '.png', '.pdf')
 
-st.subheader("Recently Uploaded Invoices")
+st.subheader("Invoice History")
 st.caption("Access all your past invoice uploads and their individual data.")
 
 @st.dialog(title="File Preview", width="large")
@@ -107,7 +107,7 @@ if len(os.listdir(directory)) != 0:
             with col2:
 
                 mod_time = os.path.getmtime(file_path)
-                date_uploaded = datetime.fromtimestamp(mod_time).strftime('%d-%m-%Y, %H:%M')
+                date_uploaded = datetime.fromtimestamp(mod_time).strftime('%H:%M, %d %b. %Y')
                 st.write(date_uploaded)
 
             with col3:

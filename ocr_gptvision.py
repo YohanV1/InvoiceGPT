@@ -26,7 +26,7 @@ def ocr_gpt(image_path):
     }
 
     payload = {
-        "model": "gpt-4o-mini",
+        "model": "gpt-4o",
         "messages": [
             {
                 "role": "user",

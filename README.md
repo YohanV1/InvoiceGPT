@@ -6,3 +6,9 @@ Try CSV?
 Figure out how to account for all the different attributes that an invoice may have.
 
 st.page_link - go to different pages from a button
+
+20th sept to do:
+add google auth
+add more stuff to sidebar (contact us, about us?)
+make chatbot UI and sql agent
+go thru streamlit api reference

@@ -12,7 +12,9 @@ font = "sans serif"  # Choose between "sans serif" and "serif"
 
 [runner]
 magicEnabled = true  # Automatically render some code as Streamlit elements
-toolbarMode = "viewer"
+
+[client]
+toolbarMode = "minimal"
 
 [browser]
 gatherUsageStats = false  # Disable usage stats tracking (recommended for privacy)
