@@ -12,8 +12,8 @@ st.logo("logo_images/invoicegpt_logo.png", icon_image="logo_images/invoicegpt_ic
 
 def about():
     st.image("logo_images/invoicegpt_logo_full.png", width=400)
-    st.write("BillBot: Smart Invoice Processing with GPT-4 Vision is an AI-driven application designed to streamline bill and invoice management. Utilizing GPT-4 Vision, BillBot accurately extracts "
-             "and contextualizes text from images, addressing the inefficiencies and errors of manual data entry. BillBot also offers interactive querying capabilities, enabling users to "
+    st.write("InvoiceGPT is an AI-driven application designed to streamline bill and invoice management. Utilizing GPT-4 Vision, InvoiceGPT accurately extracts "
+             "and contextualizes text from images, addressing the inefficiencies and errors of manual data entry. Invoice also offers interactive querying capabilities, enabling users to "
              "obtain precise answers about their bills.")
     if not st.session_state.status:
         if st.button("Login"):
@@ -24,14 +24,13 @@ def about():
         if not os.path.exists(UPLOAD_DIR):
             os.makedirs(UPLOAD_DIR)
         with st.form("my-form", clear_on_submit=True):
-            st.subheader("Upload Invoice")
+            st.subheader("Process Invoice")
             st.caption("Upload an image or PDF of your invoice and automatically extract its data!")
             uploaded_files = st.file_uploader("Choose an invoice file (PDF or Image)", type=["pdf", "jpg", "jpeg", "png"],
                                               accept_multiple_files=True, label_visibility="collapsed")
             submitted = st.form_submit_button("Upload invoice")
             for uploaded_file in uploaded_files:
                 if submitted and uploaded_file is not None:
-                    st.session_state.file_key += 1
                     file_path = os.path.join(UPLOAD_DIR, uploaded_file.name)
                     if uploaded_file.type in ["image/jpeg", "image/png", "image/jpg"]:
                         image = Image.open(uploaded_file)

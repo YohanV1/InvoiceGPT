@@ -1,0 +1,30 @@
+[server]
+headless = true  # Set this to true if running on a remote server (e.g., for deployment)
+enableCORS = false  # Disable CORS if you are working with cross-origin requests
+enableXsrfProtection = true  # Enable or disable XSRF protection
+
+[theme]
+# Define the theme of your Streamlit app (default, light, or dark)
+base = "dark"  # Use "dark" for dark mode
+primaryColor = "#D1442A"  # Customize primary color (e.g., buttons, headers)
+backgroundColor = "#D9D8D4"  # Customize background color
+secondaryBackgroundColor = "#F2F1EF"  # Background of widgets
+textColor = "#413F3D"  # Text color
+font = "sans serif"  # Choose between "sans serif" and "serif"
+
+[logging]
+# Set the log level for the Streamlit app
+level = "info"  # Options: debug, info, warning, error, critical
+
+[runner]
+magicEnabled = true  # Automatically render some code as Streamlit elements
+installTracer = false  # Disable install tracer for better performance
+
+[client]
+caching = true  # Enable caching for faster app performance
+displayEnabled = true  # Show client-side Streamlit elements
+toolbarMode = "viewer"
+
+[browser]
+gatherUsageStats = false  # Disable usage stats tracking (recommended for privacy)
+
