@@ -1,11 +1,12 @@
 import streamlit as st
 from database_files.db_create import create_tables
 from ocr_gptvision import ocr_gpt
+from authentication import google_auth
 from PIL import Image
 import os
 
 def home_page():
-    if not st.session_state.status:
+    if not st.session_state.get('connected', False):
         col1, col2, col3 = st.columns([3,11,1], vertical_alignment='center')
         with col1:
             st.title("InvoiceGPT")
@@ -14,10 +15,8 @@ def home_page():
             pass
 
         with col3:
-            if not st.session_state.status:
-                if st.button("Sign in"):
-                    st.session_state.status = True
-                    st.rerun()
+            if not st.session_state.get('connected', False):
+                google_auth()
             else:
                 pass
     else:
@@ -93,7 +92,7 @@ def home_page():
     col7, col8 = st.columns(2)
 
     with col7:
-        if st.session_state.status:
+        if st.session_state.get('connected', False):
             st.subheader('Get started.')
         else:
             st.subheader('Sign in to get started.')
@@ -104,7 +103,7 @@ def home_page():
     col9, col10 = st.columns(2, gap="large")
 
     with col9:
-        if st.session_state.status:
+        if st.session_state.get('connected', False):
             UPLOAD_DIR = "uploaded_invoices"
             if not os.path.exists(UPLOAD_DIR):
                 os.makedirs(UPLOAD_DIR)
@@ -141,3 +140,6 @@ def home_page():
         st.code("How much have I spent on taxes in the past month?", language="none")
         st.code("When was the last time I got Pizza?", language="none")
         st.code("What was my total expenditure last month?", language="none")
+
+if __name__ == '__main__':
+    home_page()
