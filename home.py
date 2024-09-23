@@ -1,13 +1,14 @@
 import streamlit as st
-from database_files.db_create import create_tables
+from database_files.db import create_user_tables
 from ocr_gptvision import ocr_gpt
 from authentication import google_auth
 from PIL import Image
-import os
+from database_files.invoice_s3_db import upload_to_s3
+import io
 
 def home_page():
     if not st.session_state.get('connected', False):
-        col1, col2, col3 = st.columns([3,11,1], vertical_alignment='center')
+        col1, col2, col3 = st.columns([3,10,2], vertical_alignment='center')
         with col1:
             st.title("InvoiceGPT")
 
@@ -104,9 +105,6 @@ def home_page():
 
     with col9:
         if st.session_state.get('connected', False):
-            UPLOAD_DIR = "uploaded_invoices"
-            if not os.path.exists(UPLOAD_DIR):
-                os.makedirs(UPLOAD_DIR)
             with st.form("my-form", clear_on_submit=True, border=False):
                 st.write("Upload an image or PDF of your invoice and automatically extract its data.")
                 uploaded_files = st.file_uploader("Choose an invoice file (PDF or Image)", type=["pdf", "jpg", "jpeg", "png"],
@@ -114,21 +112,26 @@ def home_page():
                 submitted = st.form_submit_button("Process invoice")
                 for uploaded_file in uploaded_files:
                     if submitted and uploaded_file is not None:
-                        file_path = os.path.join(UPLOAD_DIR, uploaded_file.name)
+                        user_email = st.session_state['user_info'].get('email')
                         if uploaded_file.type in ["image/jpeg", "image/png", "image/jpg"]:
-                            image = Image.open(uploaded_file)
-                            image.save(file_path)
                             with st.spinner("Uploading..."):
-                                ocr_gpt(file_path)
-                            st.success("Image invoice successfully uploaded. Navigate with the sidebar for insights.")
+                                img_byte_arr = io.BytesIO()
+                                image = Image.open(uploaded_file)
+                                image.save(img_byte_arr, format=image.format)
+                                img_byte_arr = img_byte_arr.getvalue()
 
+                                s3_path = upload_to_s3(io.BytesIO(img_byte_arr), uploaded_file.name, user_email)
+                                print(s3_path)
+                                # if s3_path:
+                                #     ocr_gpt(s3_path)
+                            st.success("Image invoice successfully uploaded. Navigate with the sidebar for insights.")
                         elif uploaded_file.type == "application/pdf":
-                            with open(file_path, "wb") as f:
-                                f.write(uploaded_file.getbuffer())
                             with st.spinner("Uploading..."):
-                                ocr_gpt(file_path)
+                                s3_path = upload_to_s3(uploaded_file, uploaded_file.name, user_email)
+                                # if s3_path:
+                                #     ocr_gpt(s3_path)
                             st.success("PDF invoice successfully uploaded. Navigate with the sidebar for insights.")
-            create_tables()
+            create_user_tables(st.session_state['user_info'].get('email'))
         else:
             with st.form("my-form", clear_on_submit=True, border=False):
                 st.caption("Upload an image or PDF of your invoice and automatically extract its data.")

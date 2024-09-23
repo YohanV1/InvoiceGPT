@@ -5,9 +5,9 @@ Try CSV?
 Figure out how to account for all the different attributes that an invoice may have.
 
 20th sept to do:
-1. add google auth
+1. add google auth - DONE
 2. add more stuff to sidebar (contact us, about us?), and add stuff to existing menus?
 3. make chatbot UI and sql agent
 4. go through streamlit api reference
 5. go through minor project review 0 and 1 data and check trajectory
-
+6. AWS RDS MYSQL DBMS

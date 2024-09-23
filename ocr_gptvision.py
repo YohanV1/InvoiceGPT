@@ -1,8 +1,9 @@
 import base64
 import requests
 from dotenv import load_dotenv
-import sqlite3
 from pdf2image import convert_from_path
+from database_files.db import insert_invoice_and_items
+import streamlit as st
 import os
 
 load_dotenv()
@@ -78,7 +79,6 @@ def ocr_gpt(image_path):
     invoice_dict = {}
     for line in invoice_data.split('\n'):
         if ": " in line:
-            print(line)
             substring = line[line.find(" ") + 1:]
             key, value = substring.split(': ', 1)
             invoice_dict[key.strip()] = value.strip()
@@ -87,52 +87,7 @@ def ocr_gpt(image_path):
     quantities = [quantity.strip() for quantity in invoice_dict['List of Quantities'].split(',')]
     prices = [price.strip() for price in invoice_dict['List of Unit Prices'].split(',')]
 
-    conn = sqlite3.connect('invoices_data.db')
-    cursor = conn.cursor()
-
-    cursor.execute('''
-    INSERT INTO invoices (
-        invoice_file_name, invoice_number, invoice_date, due_date, seller_information, buyer_information,
-        purchase_order_number, subtotal, service_charges, net_total, discount, tax,
-        tax_rate, shipping_costs, grand_total, currency, payment_terms, payment_method,
-        bank_information, invoice_notes, shipping_address,
-        billing_address
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ''', (
-        original.split('/')[1],
-        invoice_dict.get('Invoice Number', 'NULL'),
-        invoice_dict.get('Invoice Date', 'NULL'),
-        invoice_dict.get('Due Date', 'NULL'),
-        invoice_dict.get('Seller Information', 'NULL'),
-        invoice_dict.get('Buyer Information', 'NULL'),
-        invoice_dict.get('Purchase Order Number', 'NULL'),
-        invoice_dict.get('Subtotal', 'NULL'),
-        invoice_dict.get('Service Charges', 'NULL'),
-        invoice_dict.get('Net Total', 'NULL'),
-        invoice_dict.get('Discount', 'NULL'),
-        invoice_dict.get('Tax', 'NULL'),
-        invoice_dict.get('Tax Rate', 'NULL'),
-        invoice_dict.get('Shipping Costs', 'NULL'),
-        invoice_dict.get('Grand Total', 'NULL'),
-        invoice_dict.get('Currency', 'NULL'),
-        invoice_dict.get('Payment Terms', 'NULL'),
-        invoice_dict.get('Payment Method', 'NULL'),
-        invoice_dict.get('Bank Information', 'NULL'),
-        invoice_dict.get('Invoice Notes', 'NULL'),
-        invoice_dict.get('Shipping Address', 'NULL'),
-        invoice_dict.get('Billing Address', 'NULL')
-    ))
-
-    invoice_id = cursor.lastrowid
-
-    for item, quantity, price in zip(items, quantities, prices):
-        cursor.execute('''
-        INSERT INTO line_items (invoice_file_name, invoice_id, product_service, quantity, unit_price)
-        VALUES (?, ?, ?, ?, ?)
-        ''', (original.split('/')[1], invoice_id, item, quantity, price))
-
-    conn.commit()
-    conn.close()
+    insert_invoice_and_items(invoice_dict, items, quantities, prices, st.session_state['user_info'].get('email'))
 
     if 'pdf' in original:
         os.remove(image_path)

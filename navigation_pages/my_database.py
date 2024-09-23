@@ -1,23 +1,9 @@
 import streamlit as st
-import sqlite3
-import pandas as pd
+from database_files.db import get_row_items
 import zipfile
 import io
 
-def get_invoices():
-    conn = sqlite3.connect('invoices_data.db')
-    query = "SELECT * FROM invoices"
-    df = pd.read_sql_query(query, conn)
-    conn.close()
-    return df
-
-def get_line_items():
-    conn = sqlite3.connect('invoices_data.db')
-    query = "SELECT * FROM line_items"
-    df = pd.read_sql_query(query, conn)
-    conn.close()
-    return df
-
+invoices_df, line_items_df = get_row_items(st.session_state['user_info'].get('email'))
 
 st.subheader("My Invoice Database")
 st.caption("View extracted invoice data.")
@@ -25,14 +11,12 @@ st.caption("View extracted invoice data.")
 tab1, tab2 = st.tabs(["Invoices", "Line Items"])
 
 with tab1:
-    invoices_df = get_invoices()
     if invoices_df.empty:
         st.info("No invoices found in the database.")
     else:
         st.dataframe(invoices_df)
 
 with tab2:
-    line_items_df = get_line_items()
     if line_items_df.empty:
         st.info("No line items found in the database.")
     else:

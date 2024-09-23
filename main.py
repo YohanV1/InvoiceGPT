@@ -4,8 +4,6 @@ from authentication import google_auth
 
 st.set_page_config(layout="wide", page_title='InvoiceGPT', page_icon='logo_images/invoicegpt_icon.png')
 st.logo("logo_images/invoicegpt_logo.png", icon_image="logo_images/invoicegpt_icon.png")
-# if st.session_state.get('connected', False):
-#     st.sidebar.write(f"Hello, {st.session_state['user_info'].get('name')}")
 
 def about():
     home_page()

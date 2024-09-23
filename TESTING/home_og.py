@@ -1,5 +1,5 @@
 import streamlit as st
-from database_files.db_create import create_tables
+from TESTING.db_create import create_tables
 from ocr_gptvision import ocr_gpt
 from PIL import Image
 import os

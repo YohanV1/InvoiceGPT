@@ -1,8 +1,8 @@
 import streamlit as st
 import os
 from datetime import datetime
+from database_files.db import query_db, delete_data
 from streamlit_pdf_viewer import pdf_viewer
-import sqlite3
 import pandas as pd
 
 directory = 'uploaded_invoices'
@@ -20,18 +20,7 @@ def preview(path):
 
 @st.dialog(title="Invoice Attributes", width="large")
 def invoice_attributes(filename):
-    conn = sqlite3.connect('invoices_data.db')
-    cursor = conn.cursor()
-    st.write(filename)
-    query1 = "SELECT * FROM invoices WHERE invoice_file_name = ?"
-    cursor.execute(query1, (filename,))
-    invoice_data = cursor.fetchone()
-
-    query2 = "SELECT * FROM line_items WHERE invoice_file_name = ?"
-    cursor.execute(query2, (filename,))
-    line_items_data = cursor.fetchall()
-
-    conn.close()
+    invoice_data, line_items_data = query_db(filename, st.session_state['user_info'].get('email'))
 
     if invoice_data:
         st.subheader("Invoice Details")
@@ -61,14 +50,7 @@ def delete_invoice(path, name):
     col1, col2, col3 = st.columns([1,1,5])
     with col1:
         if st.button("Yes"):
-            conn = sqlite3.connect('invoices_data.db')
-            cursor = conn.cursor()
-            query1 = "DELETE FROM invoices WHERE invoice_file_name = ?"
-            query2 = "DELETE FROM line_items WHERE invoice_file_name = ?"
-            cursor.execute(query1, (name,))
-            cursor.execute(query2, (name,))
-            conn.commit()
-            conn.close()
+            delete_data(name, st.session_state['user_info'].get('email'))
             os.remove(path)
             st.rerun()
     with col2:
