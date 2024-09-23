@@ -109,7 +109,7 @@ def make_db():
             print("MySQL connection is closed")
 
 
-def insert_invoice_and_items(invoice_dict, items, quantities, prices, user_email):
+def insert_invoice_and_items(invoice_dict, s3_path, items, quantities, prices, user_email):
     connection = get_connection()
     if connection is None:
         print("Failed to get a database connection")
@@ -128,7 +128,7 @@ def insert_invoice_and_items(invoice_dict, items, quantities, prices, user_email
             bank_information, invoice_notes, shipping_address, billing_address
         ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         ''', (
-            invoice_dict.get('invoice_file_name', 'NULL'),
+            s3_path.split('/')[2],
             invoice_dict.get('Invoice Number', 'NULL'),
             invoice_dict.get('Invoice Date', 'NULL'),
             invoice_dict.get('Due Date', 'NULL'),
@@ -159,7 +159,7 @@ def insert_invoice_and_items(invoice_dict, items, quantities, prices, user_email
             INSERT INTO line_items_{sanitized_email} (invoice_file_name, invoice_id, product_service, quantity, unit_price)
             VALUES (%s, %s, %s, %s, %s)
             ''', (
-                invoice_dict.get('invoice_file_name', 'NULL'),
+                s3_path.split('/')[2],
                 invoice_id,
                 item,
                 quantity,
@@ -228,13 +228,13 @@ def delete_data(name, user_email):
         # Sanitize user email to use for table names
         sanitized_email = sanitize_email(user_email)
 
-        # Delete the invoice data
-        query1 = f"DELETE FROM invoices_{sanitized_email} WHERE invoice_file_name = %s"
-        cursor.execute(query1, (name,))
-
         # Delete the associated line items data
         query2 = f"DELETE FROM line_items_{sanitized_email} WHERE invoice_file_name = %s"
         cursor.execute(query2, (name,))
+
+        # Delete the invoice data
+        query1 = f"DELETE FROM invoices_{sanitized_email} WHERE invoice_file_name = %s"
+        cursor.execute(query1, (name,))
 
         # Commit the transaction
         connection.commit()
@@ -280,3 +280,6 @@ def get_row_items(user_email):
         if connection.is_connected():
             connection.close()
             print("MySQL connection closed.")
+
+if __name__ == "__main__":
+    delete_data("yohanvvinu@gmail.com", "yohanvvinu@gmail.com")

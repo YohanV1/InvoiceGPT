@@ -1,25 +1,31 @@
 import base64
 import requests
-from dotenv import load_dotenv
-from pdf2image import convert_from_path
 from database_files.db import insert_invoice_and_items
+import boto3
+from pdf2image import convert_from_bytes
+from io import BytesIO
 import streamlit as st
+from dotenv import load_dotenv
 import os
 
 load_dotenv()
 
+BUCKET_NAME = 'invoicegpt'
+s3_client = boto3.client('s3')
+
 api_key = os.getenv("OPENAI_API_KEY")
 
-def ocr_gpt(image_path):
-    original = image_path
-    if 'pdf' in image_path:
-        image = convert_from_path(image_path)
-        filename = image_path.split('/')[-1].split('.')[0]
-        image_path = f'uploaded_invoices/{filename}.png'
-        image[0].save(image_path, 'PNG')
-
-    with open(image_path, "rb") as image_file:
-        base64_image = base64.b64encode(image_file.read()).decode('utf-8')
+def ocr_gpt(s3_path):
+    response = s3_client.get_object(Bucket=BUCKET_NAME, Key=s3_path)
+    file_content = response['Body'].read()
+    if s3_path.lower().endswith('.pdf'):
+        images = convert_from_bytes(file_content, dpi=500)
+        img_byte_arr = BytesIO()
+        images[0].save(img_byte_arr, format='PNG')
+        img_byte_arr = img_byte_arr.getvalue()
+        base64_image = base64.b64encode(img_byte_arr).decode('utf-8')
+    else:
+        base64_image = base64.b64encode(file_content).decode('utf-8')
 
     headers = {
       "Content-Type": "application/json",
@@ -87,8 +93,5 @@ def ocr_gpt(image_path):
     quantities = [quantity.strip() for quantity in invoice_dict['List of Quantities'].split(',')]
     prices = [price.strip() for price in invoice_dict['List of Unit Prices'].split(',')]
 
-    insert_invoice_and_items(invoice_dict, items, quantities, prices, st.session_state['user_info'].get('email'))
-
-    if 'pdf' in original:
-        os.remove(image_path)
+    insert_invoice_and_items(invoice_dict, s3_path, items, quantities, prices, st.session_state['user_info'].get('email'))
     return

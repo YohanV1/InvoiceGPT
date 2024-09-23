@@ -1,22 +1,28 @@
 import streamlit as st
-import os
-from datetime import datetime
 from database_files.db import query_db, delete_data
 from streamlit_pdf_viewer import pdf_viewer
+import boto3
 import pandas as pd
+import io
 
 directory = 'uploaded_invoices'
+s3_client = boto3.client('s3')
+BUCKET_NAME = 'invoicegpt'
+FOLDER_PREFIX = f"invoices/{st.session_state['user_info'].get('email')}"
 supported_extensions = ('.jpg', '.jpeg', '.png', '.pdf')
 
 st.subheader("Invoice History")
 st.caption("Access all your past invoice uploads and their individual data.")
 
 @st.dialog(title="File Preview", width="large")
-def preview(path):
-    if path.lower().endswith('.pdf'):
-        pdf_viewer(path)
+def preview(s3_key):
+    response = s3_client.get_object(Bucket=BUCKET_NAME, Key=s3_key)
+    file_content = response['Body'].read()
+
+    if s3_key.lower().endswith('.pdf'):
+        pdf_viewer(file_content)
     else:
-        st.image(path)
+        st.image(file_content)
 
 @st.dialog(title="Invoice Attributes", width="large")
 def invoice_attributes(filename):
@@ -45,13 +51,13 @@ def invoice_attributes(filename):
         st.write("No line items found for the given invoice.")
 
 @st.dialog(title="Deletion Confirmation", width="small")
-def delete_invoice(path, name):
+def delete_invoice(s3_key, name):
     st.warning(f"Are you sure you want to delete '{name}' and its attributes from the database?")
     col1, col2, col3 = st.columns([1,1,5])
     with col1:
         if st.button("Yes"):
             delete_data(name, st.session_state['user_info'].get('email'))
-            os.remove(path)
+            s3_client.delete_object(Bucket=BUCKET_NAME, Key=s3_key)
             st.rerun()
     with col2:
         if st.button("No"):
@@ -59,8 +65,9 @@ def delete_invoice(path, name):
     with col3:
         pass
 
+response = s3_client.list_objects_v2(Bucket=BUCKET_NAME, Prefix=FOLDER_PREFIX)
 
-if len(os.listdir(directory)) != 0:
+if 'Contents' in response:
     col1, col2, col3 = st.columns([3, 2, 4.5])
 
     with col1:
@@ -70,15 +77,16 @@ if len(os.listdir(directory)) != 0:
     with col3:
         st.caption("Actions")
 
+    sorted_objects = sorted(response['Contents'], key=lambda x: x['LastModified'], reverse=True)
 
-    for filename in sorted(os.listdir(directory), key=lambda x: os.path.getmtime(os.path.join(directory, x)), reverse=True):
+    for obj in sorted_objects:
+        filename = obj['Key'].split('/')[-1]
         if filename.lower().endswith(supported_extensions):
-            file_path = os.path.join(directory, filename)
 
             col1, col2, col3 = st.columns([3, 2, 4.5], vertical_alignment='center')
 
             with col1:
-                base_name, extension = os.path.splitext(filename)
+                base_name, extension = filename.rsplit('.', 1)
                 if len(filename) > 25:
                     start_length = 12
                     end_length = 4
@@ -90,30 +98,27 @@ if len(os.listdir(directory)) != 0:
 
             with col2:
 
-                mod_time = os.path.getmtime(file_path)
-                date_uploaded = datetime.fromtimestamp(mod_time).strftime('%H:%M, %d %b. %Y')
+                date_uploaded = obj['LastModified'].strftime('%H:%M, %d %b. %Y')
                 st.write(date_uploaded)
 
             with col3:
                 col3_1, col3_2, col3_3, col3_4 = st.columns(4)
                 with col3_1:
                     if st.button("Preview", key=f"preview_{filename}"):
-                        preview(file_path)
+                        preview(obj['Key'])
                 with col3_2:
                     if st.button("View Data", key=f"details_{filename}"):
                         invoice_attributes(filename)
                 with col3_3:
-                    with open(file_path, 'rb') as f:
-                        st.download_button(
-                            label="️Download",
-                            data=f,
-                            file_name=filename,
-                            mime="application/pdf" if filename.lower().endswith('.pdf') else f"image/{filename.split('.')[-1]}",
-                            key=f"download_{filename}"
-                        )
+                    url = s3_client.generate_presigned_url('get_object',
+                                                           Params={'Bucket': BUCKET_NAME, 'Key': obj['Key']},
+                                                           ExpiresIn=3600)
+                    st.download_button(label="Download",
+                                       data=url,
+                                       file_name=obj['Key'].split('/')[-1],  # Use the file name from the key
+                                       mime='application/octet-stream')
                 with col3_4:
                     if st.button("️Delete", key=f"delete_{filename}"):
-                        st.write(filename)
-                        delete_invoice(file_path, filename)
+                        delete_invoice(obj['Key'], filename)
 else:
     st.info("There is no invoice data to display at this moment. Upload an invoice and come back.")

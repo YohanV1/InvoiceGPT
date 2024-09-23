@@ -122,14 +122,14 @@ def home_page():
 
                                 s3_path = upload_to_s3(io.BytesIO(img_byte_arr), uploaded_file.name, user_email)
                                 print(s3_path)
-                                # if s3_path:
-                                #     ocr_gpt(s3_path)
+                                if s3_path:
+                                    ocr_gpt(s3_path)
                             st.success("Image invoice successfully uploaded. Navigate with the sidebar for insights.")
                         elif uploaded_file.type == "application/pdf":
                             with st.spinner("Uploading..."):
                                 s3_path = upload_to_s3(uploaded_file, uploaded_file.name, user_email)
-                                # if s3_path:
-                                #     ocr_gpt(s3_path)
+                                if s3_path:
+                                    ocr_gpt(s3_path)
                             st.success("PDF invoice successfully uploaded. Navigate with the sidebar for insights.")
             create_user_tables(st.session_state['user_info'].get('email'))
         else:
