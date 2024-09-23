@@ -121,7 +121,6 @@ def home_page():
                                 img_byte_arr = img_byte_arr.getvalue()
 
                                 s3_path = upload_to_s3(io.BytesIO(img_byte_arr), uploaded_file.name, user_email)
-                                print(s3_path)
                                 if s3_path:
                                     ocr_gpt(s3_path)
                             st.success("Image invoice successfully uploaded. Navigate with the sidebar for insights.")
@@ -144,5 +143,3 @@ def home_page():
         st.code("When was the last time I got Pizza?", language="none")
         st.code("What was my total expenditure last month?", language="none")
 
-if __name__ == '__main__':
-    home_page()

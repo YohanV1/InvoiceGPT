@@ -10,7 +10,7 @@ import os
 
 load_dotenv()
 
-BUCKET_NAME = 'invoicegpt'
+BUCKET_NAME = 'invoicegpt-bucket'
 s3_client = boto3.client('s3')
 
 api_key = os.getenv("OPENAI_API_KEY")

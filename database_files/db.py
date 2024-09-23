@@ -1,8 +1,8 @@
 import mysql.connector
 import mysql.connector
-from mysql.connector import Error
 from dotenv import load_dotenv
 import pandas as pd
+import streamlit as st
 import os
 
 load_dotenv()
@@ -73,16 +73,11 @@ def create_user_tables(user_email):
             ''')
 
             connection.commit()
-            print(f"Tables for {user_email} created successfully.")
-
-    except mysql.connector.Error as e:
-        print(f"Error while creating tables for {user_email}: {e}")
 
     finally:
         if connection and connection.is_connected():
             cursor.close()
             connection.close()
-            print("MySQL connection is closed.")
 
 def make_db():
     try:
@@ -93,26 +88,20 @@ def make_db():
         )
 
         if connection.is_connected():
-            print("Connected to MySQL server")
 
             cursor = connection.cursor()
             cursor.execute("CREATE DATABASE invoicegpt_db;")
-            print("Database 'invoicegpt_db' created successfully")
-
-    except Error as e:
-        print(f"Error while connecting to MySQL: {e}")
 
     finally:
         if connection.is_connected():
             cursor.close()
             connection.close()
-            print("MySQL connection is closed")
+
 
 
 def insert_invoice_and_items(invoice_dict, s3_path, items, quantities, prices, user_email):
     connection = get_connection()
     if connection is None:
-        print("Failed to get a database connection")
         return
 
     try:
@@ -167,119 +156,105 @@ def insert_invoice_and_items(invoice_dict, s3_path, items, quantities, prices, u
             ))
 
         connection.commit()
-        print(f"Invoice and line items for {user_email} inserted successfully.")
+        st.cache_data.clear()
 
-    except mysql.connector.Error as e:
-        print(f"Error while inserting data: {e}")
+
+    except mysql.connector.Error:
         connection.rollback()
 
     finally:
         if connection.is_connected():
             cursor.close()
             connection.close()
-            print("MySQL connection closed.")
 
+
+@st.cache_data
 def query_db(filename, user_email):
     connection = get_connection()
 
     if connection is None:
-        print("Failed to get a database connection")
+
         return None, None
 
     try:
         cursor = connection.cursor()
 
-        # Sanitize user email to use for table names
         sanitized_email = sanitize_email(user_email)
 
-        # Fetch the invoice data
         query1 = f"SELECT * FROM invoices_{sanitized_email} WHERE invoice_file_name = %s"
         cursor.execute(query1, (filename,))
         invoice_data = cursor.fetchone()
 
-        # Fetch the line items data
         query2 = f"SELECT * FROM line_items_{sanitized_email} WHERE invoice_file_name = %s"
         cursor.execute(query2, (filename,))
         line_items_data = cursor.fetchall()
 
-        # Return the fetched data
         return invoice_data, line_items_data
 
-    except mysql.connector.Error as e:
-        print(f"Error while fetching data from MySQL: {e}")
+    except mysql.connector.Error:
+
         return None, None
 
     finally:
         if connection.is_connected():
             cursor.close()
             connection.close()
-            print("MySQL connection closed.")
+
 
 def delete_data(name, user_email):
-    connection = get_connection()  # Reuse the MySQL connection pool
+    connection = get_connection()
 
     if connection is None:
-        print("Failed to get a database connection")
+
         return
 
     try:
         cursor = connection.cursor()
 
-        # Sanitize user email to use for table names
         sanitized_email = sanitize_email(user_email)
 
-        # Delete the associated line items data
         query2 = f"DELETE FROM line_items_{sanitized_email} WHERE invoice_file_name = %s"
         cursor.execute(query2, (name,))
 
-        # Delete the invoice data
         query1 = f"DELETE FROM invoices_{sanitized_email} WHERE invoice_file_name = %s"
         cursor.execute(query1, (name,))
 
-        # Commit the transaction
         connection.commit()
-        print(f"Invoice and line items for {name} deleted successfully.")
+        st.cache_data.clear()
 
-    except mysql.connector.Error as e:
-        print(f"Error while deleting data from MySQL: {e}")
+
+    except mysql.connector.Error:
+
         connection.rollback()
 
     finally:
         if connection.is_connected():
             cursor.close()
             connection.close()
-            print("MySQL connection closed.")
 
+
+@st.cache_data
 def get_row_items(user_email):
-    connection = get_connection()  # Reuse the MySQL connection pool
+    connection = get_connection()
 
     if connection is None:
-        print("Failed to get a database connection")
+
         return None, None
 
     try:
-        # Sanitize user email to use for table names
         sanitized_email = user_email.replace('@', '_at_').replace('.', '_dot_')
 
-        # Define queries for invoices and line_items tables
         query1 = f"SELECT * FROM invoices_{sanitized_email}"
         query2 = f"SELECT * FROM line_items_{sanitized_email}"
 
-        # Read the data into pandas DataFrames
         df1 = pd.read_sql(query1, connection)
         df2 = pd.read_sql(query2, connection)
 
-        # Return the DataFrames
         return df1, df2
 
-    except mysql.connector.Error as e:
-        print(f"Error while fetching data from MySQL: {e}")
+    except mysql.connector.Error:
         return None, None
 
     finally:
         if connection.is_connected():
             connection.close()
-            print("MySQL connection closed.")
-
-if __name__ == "__main__":
-    delete_data("yohanvvinu@gmail.com", "yohanvvinu@gmail.com")

@@ -7,7 +7,7 @@ load_dotenv()
 
 s3_client = boto3.client('s3')
 
-BUCKET_NAME = 'invoicegpt'
+BUCKET_NAME = 'invoicegpt-bucket'
 
 def upload_to_s3(file_object, filename, user_email):
     try:

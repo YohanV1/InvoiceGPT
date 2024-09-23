@@ -8,10 +8,10 @@ st.logo("logo_images/invoicegpt_logo.png", icon_image="logo_images/invoicegpt_ic
 def about():
     home_page()
 
-def exit():
+def exit_app():
     google_auth()
 
-logout_page = st.Page(exit, title="Log out", icon=":material/logout:")
+logout_page = st.Page(exit_app, title="Log out", icon=":material/logout:")
 settings = st.Page("navigation_pages/settings.py", title="Settings", icon=":material/settings:")
 view_invoices = st.Page("navigation_pages/invoice_history.py", title="Recent Invoices", icon=":material/folder:")
 view_invoice_database = st.Page("navigation_pages/my_database.py", title="My Database", icon=":material/visibility:")

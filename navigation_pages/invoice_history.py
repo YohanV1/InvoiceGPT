@@ -3,11 +3,18 @@ from database_files.db import query_db, delete_data
 from streamlit_pdf_viewer import pdf_viewer
 import boto3
 import pandas as pd
-import io
+import pytz
+from botocore.config import Config
+
+my_config = Config(
+    region_name = 'ap-south-1',
+    signature_version = 's3v4'
+)
+
+s3_client = boto3.client('s3', config=my_config)
 
 directory = 'uploaded_invoices'
-s3_client = boto3.client('s3')
-BUCKET_NAME = 'invoicegpt'
+BUCKET_NAME = 'invoicegpt-bucket'
 FOLDER_PREFIX = f"invoices/{st.session_state['user_info'].get('email')}"
 supported_extensions = ('.jpg', '.jpeg', '.png', '.pdf')
 
@@ -97,8 +104,11 @@ if 'Contents' in response:
                     st.write(filename)
 
             with col2:
-
-                date_uploaded = obj['LastModified'].strftime('%H:%M, %d %b. %Y')
+                utc_time = obj['LastModified']
+                utc_zone = pytz.timezone('UTC')
+                ist_zone = pytz.timezone('Asia/Kolkata')
+                ist_time = utc_time.astimezone(ist_zone)
+                date_uploaded = ist_time.strftime('%H:%M, %d %b. %Y')
                 st.write(date_uploaded)
 
             with col3:
@@ -113,10 +123,7 @@ if 'Contents' in response:
                     url = s3_client.generate_presigned_url('get_object',
                                                            Params={'Bucket': BUCKET_NAME, 'Key': obj['Key']},
                                                            ExpiresIn=3600)
-                    st.download_button(label="Download",
-                                       data=url,
-                                       file_name=obj['Key'].split('/')[-1],  # Use the file name from the key
-                                       mime='application/octet-stream')
+                    st.link_button("Download", url)
                 with col3_4:
                     if st.button("️Delete", key=f"delete_{filename}"):
                         delete_invoice(obj['Key'], filename)
