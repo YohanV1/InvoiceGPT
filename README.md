@@ -10,3 +10,4 @@ make chatbot UI and sql agent
 go through streamlit api reference
 go through minor project review 0 and 1 data and check trajectory
 handle multipage invoices and optimise prompt?
+handle auth cookies streamlit
