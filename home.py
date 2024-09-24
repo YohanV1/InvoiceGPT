@@ -1,5 +1,5 @@
 import streamlit as st
-from database_files.db import create_user_tables
+from database_files.sqlite_db import create_user_tables
 from ocr_gptvision import ocr_gpt
 from authentication import google_auth
 from PIL import Image
@@ -142,4 +142,5 @@ def home_page():
         st.code("How much have I spent on taxes in the past month?", language="none")
         st.code("When was the last time I got Pizza?", language="none")
         st.code("What was my total expenditure last month?", language="none")
+
 

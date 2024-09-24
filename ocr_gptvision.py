@@ -1,6 +1,6 @@
 import base64
 import requests
-from database_files.db import insert_invoice_and_items
+from database_files.sqlite_db import insert_invoice_and_items
 import boto3
 from pdf2image import convert_from_bytes
 from io import BytesIO

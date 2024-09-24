@@ -1,5 +1,5 @@
 import streamlit as st
-from database_files.db import query_db, delete_data
+from database_files.sqlite_db import query_db, delete_data
 from streamlit_pdf_viewer import pdf_viewer
 import boto3
 import pandas as pd
