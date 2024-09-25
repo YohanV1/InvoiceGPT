@@ -170,3 +170,16 @@ def check_empty_db(user_email):
     count = result[0]
     conn.close()
     return count==0
+
+def delete_user_tables(email):
+    sanitized_email = sanitize_email(email)
+    conn = sqlite3.connect('invoicegpt_db.db')
+    cursor = conn.cursor()
+
+    tables = [f"invoices_{sanitized_email}", f"line_items_{sanitized_email}"]
+
+    for table in tables:
+        cursor.execute(f"DROP TABLE IF EXISTS {table}")
+
+    conn.commit()
+    conn.close()

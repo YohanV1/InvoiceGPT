@@ -5,7 +5,7 @@ import io
 
 invoices_df, line_items_df = get_row_items(st.session_state['user_info'].get('email'))
 
-st.subheader("My Invoice Database")
+st.header("My Invoice Database")
 st.caption("View extracted invoice data.")
 
 tab1, tab2 = st.tabs(["Invoices", "Line Items"])

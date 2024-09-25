@@ -18,7 +18,7 @@ BUCKET_NAME = 'invoicegpt-bucket'
 FOLDER_PREFIX = f"invoices/{st.session_state['user_info'].get('email')}"
 supported_extensions = ('.jpg', '.jpeg', '.png', '.pdf')
 
-st.subheader("Invoice History")
+st.header("Invoice History")
 st.caption("Access all your past invoice uploads and their individual data.")
 
 @st.dialog(title="File Preview", width="large")

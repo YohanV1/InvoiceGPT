@@ -18,13 +18,15 @@ view_invoice_database = st.Page("navigation_pages/my_database.py", title="My Dat
 chat_with_ai = st.Page("navigation_pages/ai_chat.py", title="Chat with AI", icon=":material/chat:")
 about_page = st.Page(about, title="Home", icon=":material/home:")
 
-account_pages = [logout_page, settings]
+account_pages = [settings, logout_page]
 invoice_pages = [about_page, view_invoices, view_invoice_database, chat_with_ai]
 
 page_dict = {}
+
 if st.session_state.get('connected', False):
     page_dict["Explore"] = invoice_pages
-    pg = st.navigation(page_dict | {"Account": account_pages})
+    first_name = st.session_state['user_info'].get('name').split()[0]
+    pg = st.navigation(page_dict | {f"Account (Logged in as {first_name})": account_pages})
 else:
     pg = st.navigation([st.Page(about)])
 

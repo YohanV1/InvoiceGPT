@@ -20,9 +20,10 @@ if "messages" not in st.session_state:
     st.session_state.messages = []
 
 if not st.session_state.messages:
+    first_name = st.session_state['user_info'].get('name').split()[0]
     st.session_state.messages.append({
         "role": "assistant",
-        "content": f"Hi {st.session_state['user_info'].get('name')}, how can I help you today?"
+        "content": f"Hi {first_name}, how can I help you today?"
     })
 
 os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
@@ -46,11 +47,12 @@ db = SQLDatabase.from_uri(
 
 img_avatar = Image.open('logo_images/invoicegpt_icon.png')
 
+st.header("Ask InvoiceGPT About Your Data!")
+st.caption("Powered by OpenAI.")
 
 for message in st.session_state.messages:
     with st.chat_message(message["role"], avatar=img_avatar if message["role"]=="assistant" else None):
         st.markdown(message["content"])
-
 
 
 def query_as_list(db, query):
@@ -59,7 +61,7 @@ def query_as_list(db, query):
     res = [re.sub(r"\b\d+\b", "", string).strip() for string in res]
     return list(set(res))
 
-@st.cache_data
+@st.cache_data(show_spinner=False)
 def proper_nouns():
     sanitized_email = sanitize_email(st.session_state['user_info'].get('email'))
 
@@ -95,7 +97,7 @@ def proper_nouns():
 
     return all_proper_nouns_combined
 
-@st.cache_resource
+@st.cache_resource(show_spinner=False)
 def initialize_agent():
     extra_tools = []
     if not check_empty_db(st.session_state['user_info'].get('email')):
@@ -163,10 +165,12 @@ if prompt := st.chat_input("What is your question?"):
         st.markdown(prompt)
     st.session_state.messages.append({"role": "user", "content": prompt})
 
-    response = make_output(prompt)
+    with st.spinner("Give me a moment:"):
+        response = make_output(prompt)
+
 
     with st.chat_message("assistant", avatar=img_avatar):
         st.write_stream(modify_output(response))
-        # st.write(response)
+
     st.session_state.messages.append({"role": "assistant", "content": response})
     st.rerun()
