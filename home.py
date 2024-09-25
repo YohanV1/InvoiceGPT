@@ -142,5 +142,3 @@ def home_page():
         st.code("How much have I spent on taxes in the past month?", language="none")
         st.code("When was the last time I got Pizza?", language="none")
         st.code("What was my total expenditure last month?", language="none")
-
-
