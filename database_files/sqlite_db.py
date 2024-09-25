@@ -112,6 +112,7 @@ def insert_invoice_and_items(invoice_dict, s3_path, items, quantities, prices, u
 
     conn.commit()
     st.cache_data.clear()
+    st.cache_resource.clear()
     conn.close()
 
 @st.cache_data
@@ -141,6 +142,7 @@ def delete_data(name, user_email):
 
     conn.commit()
     st.cache_data.clear()
+    st.cache_resource.clear()
     conn.close()
 
 @st.cache_data
@@ -158,3 +160,13 @@ def get_row_items(user_email):
 
     conn.close()
     return df1, df2
+
+def check_empty_db(user_email):
+    conn = create_connection()
+    c = conn.cursor()
+    sanitized_email = sanitize_email(user_email)
+    c.execute(f"SELECT COUNT(*) FROM invoices_{sanitized_email}")
+    result = c.fetchone()
+    count = result[0]
+    conn.close()
+    return count==0

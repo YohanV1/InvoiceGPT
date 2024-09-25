@@ -3,7 +3,7 @@ from langchain_openai import OpenAIEmbeddings
 from langchain_community.utilities import SQLDatabase
 from langchain_community.agent_toolkits import create_sql_agent
 from langchain_community.vectorstores import FAISS
-from database_files.sqlite_db import sanitize_email
+from database_files.sqlite_db import sanitize_email, check_empty_db
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_openai import ChatOpenAI
 from langchain.agents.agent_toolkits import create_retriever_tool
@@ -16,6 +16,15 @@ import ast
 
 load_dotenv()
 
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+if not st.session_state.messages:
+    st.session_state.messages.append({
+        "role": "assistant",
+        "content": f"Hi {st.session_state['user_info'].get('name')}, how can I help you today?"
+    })
+
 os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
 
 db_host = os.getenv("DB_HOST")
@@ -23,11 +32,26 @@ db_user = os.getenv("DB_USER")
 db_password = os.getenv("DB_PASSWORD")
 db_name = os.getenv("DB_NAME")
 
-connection_uri = f"mysql+pymysql://{db_user}:{db_password}@{db_host}:3306/{db_name}"
+# FOR AWS CONNECTION - connection_uri = f"mysql+pymysql://{db_user}:{db_password}@{db_host}:3306/{db_name}"
+# FOR AWS CONNECTION - db = SQLDatabase.from_uri(connection_uri)
 
-db = SQLDatabase.from_uri(connection_uri)
+sanitized_email = sanitize_email(st.session_state['user_info'].get('email'))
+invoices_table = f"invoices_{sanitized_email}"
+line_items_table = f"line_items_{sanitized_email}"
+
+db = SQLDatabase.from_uri(
+    'sqlite:///invoicegpt_db.db',
+    include_tables=[invoices_table, line_items_table]
+)
 
 img_avatar = Image.open('logo_images/invoicegpt_icon.png')
+
+
+for message in st.session_state.messages:
+    with st.chat_message(message["role"], avatar=img_avatar if message["role"]=="assistant" else None):
+        st.markdown(message["content"])
+
+
 
 def query_as_list(db, query):
     res = db.run(query)
@@ -73,15 +97,18 @@ def proper_nouns():
 
 @st.cache_resource
 def initialize_agent():
-    vector_db = FAISS.from_texts(proper_nouns(), OpenAIEmbeddings())
-    retriever = vector_db.as_retriever(search_kwargs={"k": 5})
-    description = """Use to look up values to filter on. Input is an approximate spelling of the proper noun, output is \
-    valid proper nouns. Use the noun most similar to the search."""
-    retriever_tool = create_retriever_tool(
-        retriever,
-        name="search_proper_nouns",
-        description=description,
-    )
+    extra_tools = []
+    if not check_empty_db(st.session_state['user_info'].get('email')):
+        vector_db = FAISS.from_texts(proper_nouns(), OpenAIEmbeddings())
+        retriever = vector_db.as_retriever(search_kwargs={"k": 5})
+        description = """Used to look up values to filter on. Input is an approximate spelling of the proper noun, output is \
+        valid proper nouns. Use the noun most similar to the search."""
+        retriever_tool = create_retriever_tool(
+            retriever,
+            name="search_proper_nouns",
+            description=description,
+        )
+        extra_tools.append(retriever_tool)
 
     llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
     system = """You are an agent designed to interact with a SQL database.
@@ -93,7 +120,7 @@ def initialize_agent():
     Only use the given tools. Only use the information returned by the tools to construct your final answer.
     You MUST double check your query before executing it. If you get an error while executing a query, rewrite the query and try again.
     
-    DO NOT make any DML statements (INSERT, UPDATE, DELETE, DROP etc.) to the database.
+    DO NOT make any DML statements (INSERT, UPDATE, DELETE, DROP etc.) to the database. 
     
     If you need to filter on a proper noun, you must ALWAYS first look up the filter value using the "search_proper_nouns" tool! 
     
@@ -101,12 +128,12 @@ def initialize_agent():
     """
 
     prompt = ChatPromptTemplate.from_messages(
-        [("system", system), ("human", "{input}"), MessagesPlaceholder("agent_scratchpad")]
+        [("system", system), ("human", "{input}"), MessagesPlaceholder("agent_scratchpad"), ]
     )
     agent = create_sql_agent(
         llm=llm,
         db=db,
-        extra_tools=[retriever_tool],
+        extra_tools=extra_tools,
         prompt=prompt,
         agent_type="openai-tools",
         verbose=False,
@@ -130,18 +157,6 @@ def modify_output(input):
         yield text + " "
         time.sleep(0.1)
 
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-
-if not st.session_state.messages:
-    st.session_state.messages.append({
-        "role": "assistant",
-        "content": f"Hi {st.session_state['user_info'].get('name')}, how can I help you today?"
-    })
-
-for message in st.session_state.messages:
-    with st.chat_message(message["role"], avatar=img_avatar if message["role"]=="assistant" else None):
-        st.markdown(message["content"])
 
 if prompt := st.chat_input("What is your question?"):
     with st.chat_message("user"):
@@ -152,4 +167,6 @@ if prompt := st.chat_input("What is your question?"):
 
     with st.chat_message("assistant", avatar=img_avatar):
         st.write_stream(modify_output(response))
+        # st.write(response)
     st.session_state.messages.append({"role": "assistant", "content": response})
+    st.rerun()

@@ -21,4 +21,6 @@ def google_auth():
             unsafe_allow_html=True
         )
     else:
+        st.cache_data.clear()
+        st.cache_resource.clear()
         authenticator.logout()

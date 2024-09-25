@@ -2,3 +2,4 @@ venv
 .idea
 .env
 google_creds.json
+invoicegpt_db.db
