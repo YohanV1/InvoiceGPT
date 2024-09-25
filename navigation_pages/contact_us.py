@@ -1,5 +1,5 @@
 import streamlit as st
-from send_email import send_email
+from utilities.send_email import send_email
 
 st.header("Get in Touch")
 text = """

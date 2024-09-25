@@ -1,6 +1,6 @@
 import streamlit as st
 from database_files.sqlite_db import delete_user_tables
-from authentication import google_auth
+from utilities.authentication import google_auth
 import time
 
 if 'flag' not in st.session_state:

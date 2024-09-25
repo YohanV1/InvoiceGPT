@@ -1,7 +1,7 @@
 import streamlit as st
 from database_files.sqlite_db import create_user_tables
-from ocr_gptvision import ocr_gpt
-from authentication import google_auth
+from utilities.ocr_gptvision import ocr_gpt
+from utilities.authentication import google_auth
 from PIL import Image
 from database_files.invoice_s3_db import upload_to_s3
 import io
@@ -28,7 +28,8 @@ def home_page():
              "Harnessing the power of GPT-4 Vision, our application revolutionizes how you handle financial documents. "
              "Say goodbye to tedious manual data entry and hello to accurate, efficient, and insightful invoice processing. "
              "InvoiceGPT doesn't just digitize your bills – it understands them, providing you with actionable insights "
-             "and powerful analytical capabilities to transform your financial management.")
+             "and powerful analytical capabilities to transform your financial management. You are also equipped with your"
+             "own invoice chatbot to query your data for insights. Go ahead and ask it how much you spent on your last shopping trip!")
 
     col1, col2, col3 = st.columns(3, gap="medium")
 
@@ -36,7 +37,7 @@ def home_page():
         container1 = st.container(border=True, height=200)
         col1_1, col1_2 = container1.columns([1, 7], vertical_alignment='center')
         with col1_1:
-            st.image("logo_images/Upload icon.png", width=40)
+            st.image("images/Upload icon.png", width=40)
         with col1_2:
             st.subheader('Store Invoices')
         container1.write('Effortlessly upload and securely store your financial documents in one centralized location, ensuring easy access and organization.')
@@ -45,7 +46,7 @@ def home_page():
         container2 = st.container(border=True, height=200)
         col2_1, col2_2 = container2.columns([1, 7], vertical_alignment='center')
         with col2_1:
-            st.image("logo_images/Lightbulb icon.png", width=40)
+            st.image("images/Lightbulb icon.png", width=40)
         with col2_2:
             st.subheader('Smart Processing')
         container2.write('Experience cutting-edge OCR and AI technology that accurately extracts, interprets, and categorizes data from your invoices with minimal manual input.')
@@ -54,7 +55,7 @@ def home_page():
         container3 = st.container(border=True, height=200)
         col3_1, col3_2 = container3.columns([1, 7], vertical_alignment='center')
         with col3_1:
-            st.image("logo_images/Content cut 24dp.png", width=40)
+            st.image("images/Content cut 24dp.png", width=40)
         with col3_2:
             st.subheader('Auto-Splitting')
         container3.write('Save time with intelligent auto-splitting capabilities that accurately categorize and allocate invoice items across both PDF and image formats.')
@@ -65,7 +66,7 @@ def home_page():
         container4 = st.container(border=True, height=200)
         col4_1, col4_2 = container4.columns([1, 7], vertical_alignment='center')
         with col4_1:
-            st.image("logo_images/Satisfied icon.png", width=40)
+            st.image("images/Satisfied icon.png", width=40)
         with col4_2:
             st.subheader('User-Friendly')
         container4.write('Navigate our intuitive interface designed for users of all skill levels, making invoice management accessible and effortless for everyone.')
@@ -74,7 +75,7 @@ def home_page():
         container5 = st.container(border=True, height=200)
         col5_1, col5_2 = container5.columns([1, 7], vertical_alignment='center')
         with col5_1:
-            st.image("logo_images/Search icon.png", width=40)
+            st.image("images/Search icon.png", width=40)
         with col5_2:
             st.subheader('AI Querying')
         container5.write('Engage with our AI to ask specific questions about your bills and receive instant, accurate answers, enhancing your financial understanding.')
@@ -83,7 +84,7 @@ def home_page():
         container6 = st.container(border=True, height=200)
         col6_1, col6_2 = container6.columns([1, 7], vertical_alignment='center')
         with col6_1:
-            st.image("logo_images/Analytics icon.png", width=40)
+            st.image("images/Analytics icon.png", width=40)
         with col6_2:
             st.subheader('Data Insights')
         container6.write('Unlock valuable insights from your financial data with advanced analytics tools, empowering you to make informed business decisions.')
@@ -141,4 +142,4 @@ def home_page():
         st.write("Here are some sample queries for reference.")
         st.code("How much have I spent on taxes in the past month?", language="none")
         st.code("When was the last time I got Pizza?", language="none")
-        st.code("What was my total expenditure last month?", language="none")
+        st.code("Where did I ship my last pair of shoes to?", language="none")

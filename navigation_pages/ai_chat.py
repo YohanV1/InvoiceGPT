@@ -45,7 +45,7 @@ db = SQLDatabase.from_uri(
     include_tables=[invoices_table, line_items_table]
 )
 
-img_avatar = Image.open('logo_images/invoicegpt_icon.png')
+img_avatar = Image.open('images/invoicegpt_icon.png')
 
 st.header("Ask InvoiceGPT About Your Data!")
 st.caption("Powered by OpenAI.")

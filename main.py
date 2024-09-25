@@ -1,9 +1,9 @@
 import streamlit as st
-from home import home_page
-from authentication import google_auth
+from utilities.home import home_page
+from utilities.authentication import google_auth
 
-st.set_page_config(layout="wide", page_title='InvoiceGPT', page_icon='logo_images/invoicegpt_icon.png')
-st.logo("logo_images/invoicegpt_logo.png", icon_image="logo_images/invoicegpt_icon.png")
+st.set_page_config(layout="wide", page_title='InvoiceGPT', page_icon='images/invoicegpt_icon.png')
+st.logo("images/invoicegpt_logo.png", icon_image="images/invoicegpt_icon.png")
 
 def about():
     home_page()
@@ -19,7 +19,7 @@ chat_with_ai = st.Page("navigation_pages/ai_chat.py", title="Chat with AI", icon
 about_page = st.Page(about, title="Home", icon=":material/home:")
 
 about_us_page = st.Page("navigation_pages/about_us.py", title="About", icon=":material/help:")
-contact_us_page = st.Page("navigation_pages/contact_us.py", title="Get in Touch", icon=":material/contact_mail:")
+contact_us_page = st.Page("navigation_pages/contact_us.py", title="Get in Touch!", icon=":material/contact_mail:")
 
 account_pages = [settings, logout_page]
 invoice_pages = [about_page, view_invoices, view_invoice_database, chat_with_ai]
