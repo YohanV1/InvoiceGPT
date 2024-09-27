@@ -17,12 +17,13 @@ view_invoices = st.Page("navigation_pages/invoice_history.py", title="Recent Inv
 view_invoice_database = st.Page("navigation_pages/my_database.py", title="My Database", icon=":material/visibility:")
 chat_with_ai = st.Page("navigation_pages/ai_chat.py", title="Chat with AI", icon=":material/chat:")
 about_page = st.Page(about, title="Home", icon=":material/home:")
+manual_entry_page = st.Page("navigation_pages/manual_entry.py", title="Insert & Update Data", icon=":material/edit:")
 
 about_us_page = st.Page("navigation_pages/about_us.py", title="About", icon=":material/help:")
 contact_us_page = st.Page("navigation_pages/contact_us.py", title="Get in Touch!", icon=":material/contact_mail:")
 
 account_pages = [settings, logout_page]
-invoice_pages = [about_page, view_invoices, view_invoice_database, chat_with_ai]
+invoice_pages = [about_page, view_invoices, view_invoice_database, chat_with_ai, manual_entry_page]
 learn_more_pages = [about_us_page, contact_us_page]
 
 page_dict = {}

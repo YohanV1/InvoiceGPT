@@ -47,7 +47,7 @@ db = SQLDatabase.from_uri(
 
 img_avatar = Image.open('images/invoicegpt_icon.png')
 
-st.header("Ask InvoiceGPT About Your Data!")
+st.header("Ask InvoiceGPT.")
 st.caption("Powered by OpenAI.")
 
 for message in st.session_state.messages:
@@ -112,7 +112,7 @@ def initialize_agent():
         )
         extra_tools.append(retriever_tool)
 
-    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+    llm = ChatOpenAI(model="gpt-4o", temperature=0)
     system = """You are an agent designed to interact with a SQL database.
     Given an input question, create a syntactically correct {dialect} query to run, then look at the results of the query and return the answer.
     Unless the user specifies a specific number of examples they wish to obtain, always limit your query to at most {top_k} results.
@@ -126,7 +126,9 @@ def initialize_agent():
     
     If you need to filter on a proper noun, you must ALWAYS first look up the filter value using the "search_proper_nouns" tool! 
     
+    If the question seems unrelated to the database, try answering with what you know.
     You have access to the following tables: {table_names}
+    These tables have the following information: {table_info}
     """
 
     prompt = ChatPromptTemplate.from_messages(
@@ -165,7 +167,7 @@ if prompt := st.chat_input("What is your question?"):
         st.markdown(prompt)
     st.session_state.messages.append({"role": "user", "content": prompt})
 
-    with st.spinner("Give me a moment:"):
+    with st.spinner("Give me a moment"):
         response = make_output(prompt)
 
 

@@ -28,7 +28,7 @@ def home_page():
              "Harnessing the power of GPT-4 Vision, our application revolutionizes how you handle financial documents. "
              "Say goodbye to tedious manual data entry and hello to accurate, efficient, and insightful invoice processing. "
              "InvoiceGPT doesn't just digitize your bills – it understands them, providing you with actionable insights "
-             "and powerful analytical capabilities to transform your financial management. You are also equipped with your"
+             "and powerful analytical capabilities to transform your financial management. You are also equipped with your "
              "own invoice chatbot to query your data for insights. Go ahead and ask it how much you spent on your last shopping trip!")
 
     col1, col2, col3 = st.columns(3, gap="medium")

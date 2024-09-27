@@ -19,3 +19,22 @@ def upload_to_s3(file_object, filename, user_email):
     except ClientError as e:
         st.error(f"Error uploading file to S3: {e}")
         return None
+
+
+def remove_user_files_from_s3(user_email):
+    try:
+        response = s3_client.list_objects_v2(
+            Bucket=BUCKET_NAME,
+            Prefix=f"invoices/{user_email}/"
+        )
+        if 'Contents' not in response:
+            return
+        objects_to_delete = [{'Key': obj['Key']} for obj in response['Contents']]
+
+        s3_client.delete_objects(
+            Bucket=BUCKET_NAME,
+            Delete={'Objects': objects_to_delete}
+        )
+
+    except ClientError as e:
+        st.error(f"Error deleting files from S3: {e}")

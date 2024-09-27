@@ -3,7 +3,7 @@ import streamlit as st
 col1, col2 = st.columns([2,1], vertical_alignment='center', gap='large')
 
 with col1:
-    st.header("About InvoiceGPT")
+    st.header("What is InvoiceGPT?")
 
     st.write("""
         InvoiceGPT is an innovative application designed to revolutionize invoice management through artificial intelligence. 
@@ -37,6 +37,8 @@ with col1:
 
 with col2:
     st.image("images/invoicegpt_icon.png")
+
+st.divider()
 
 col3, col4 = st.columns([1,2], vertical_alignment='center', gap='large')
 

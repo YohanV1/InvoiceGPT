@@ -1,4 +1,5 @@
 import streamlit as st
+from database_files.invoice_s3_db import remove_user_files_from_s3
 from database_files.sqlite_db import delete_user_tables
 from utilities.authentication import google_auth
 import time
@@ -31,6 +32,7 @@ st.write(f"Email: {user_email}")
 
 if st.button("Close Account"):
     delete_account()
+    remove_user_files_from_s3(st.session_state['user_info'].get('email'))
 
 if st.session_state.flag:
     delete_user_tables(st.session_state['user_info'].get('email'))

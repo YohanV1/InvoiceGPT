@@ -6,6 +6,12 @@ Figure out how to account for all the different attributes that an invoice may h
 
 24th sept to do:
 add more stuff to sidebar (contact us, about us?, manual upload), and add stuff to existing menus?
-go through streamlit api reference
+add contact us, about us to home page
 handle multipage invoices and optimise prompt?
 handle auth cookies streamlit
+
+
+
+
+
+
