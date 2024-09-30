@@ -40,7 +40,10 @@ def ocr_gpt(s3_path):
             "content": [
                 {
                     "type": "text",
-                    "text": """Perform OCR on the given image and extract the following key invoice attributes. Format your response as [serial no.]. [key]: [value]. If an attribute is not present, use 'NULL'. Convert any percentages to numeric (Example: 20% = 0.2). Do not provide any additional text or explanations.
+                    "text": """Perform OCR on the given image and extract the following key invoice attributes. 
+                    Format your response as [serial no.]. [key]: [value]. If an attribute is not present, use 'NULL'. 
+                    Convert any percentages to numeric (Example: 20% = 0.2). Provide prices only as numerics, without currency. 
+                    Do not provide any additional text or explanations.
 
 1. invoice_number: The unique identifier for this invoice. (TEXT)
 2. invoice_date: The date the invoice was issued (format: YYYY-MM-DD). (DATE)

@@ -16,7 +16,7 @@ def validate_date(date_str):
     if date_str == 'NULL':
         return None
     try:
-        return datetime.datetime.strptime(date_str, '%Y-%d-%m').date()
+        return datetime.datetime.strptime(date_str, '%Y-%m-%d').date()
     except ValueError:
         return None
 

@@ -126,6 +126,13 @@ def initialize_agent():
     
     If you need to filter on a proper noun, you must ALWAYS first look up the filter value using the "search_proper_nouns" tool! 
     
+    Use some logic as well. For example:
+    For "How much did I spend on food in September?", identify all food items in the database that were bought in September, and sum
+    up the total.
+    
+    For "When did I last buy Nike shoes?", identify any item that might be Nike related, like Air Forces, or Air Jordans.
+    
+    
     If the question seems unrelated to the database, try answering with what you know.
     You have access to the following tables: {table_names}
     These tables have the following information: {table_info}
