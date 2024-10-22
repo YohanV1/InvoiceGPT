@@ -133,13 +133,8 @@ InvoiceGPT prioritizes data security through:
 
 ## License
 
-[Add your license information here]
+This project is licensed under the [MIT License](https://github.com/YohanV1/InvoiceGPT/blob/main/LICENSE)
 
 ## Support
 
 For support, please open an issue in the GitHub repository.
-
-
-This project is licensed under the [MIT License](https://github.com/YohanV1/InvoiceGPT/blob/main/LICENSE)
-
-
