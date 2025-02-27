@@ -84,28 +84,28 @@ def create_user_tables(user_email):
     conn.commit()
     conn.close()
 
-def insert_invoice_and_items(invoice_dict, s3_path, items, quantities, prices, user_email):
+def insert_invoice_and_items(invoice_dict, filename, items, quantities, prices, user_email):
     conn = create_connection()
     c = conn.cursor()
 
     sanitized_email = sanitize_email(user_email)
 
     invoice_data = (
-        validate_text(s3_path.split('/')[2]),
+        validate_text(filename),
         validate_text(invoice_dict.get('invoice_number')),
         validate_date(invoice_dict.get('invoice_date')),
         validate_date(invoice_dict.get('due_date')),
         validate_text(invoice_dict.get('seller_information')),
         validate_text(invoice_dict.get('buyer_information')),
         validate_text(invoice_dict.get('purchase_order_number')),
-        validate_numeric(invoice_dict.get('subtotal', 0)),
-        validate_numeric(invoice_dict.get('service_charges', 0)),
-        validate_numeric(invoice_dict.get('net_total', 0)),
-        validate_text(invoice_dict.get('discount', 0)),
-        validate_numeric(invoice_dict.get('tax', 0)),
-        validate_text(invoice_dict.get('tax_rate', 0)),
-        validate_numeric(invoice_dict.get('shipping_costs', 0)),
-        validate_numeric(invoice_dict.get('grand_total', 0)),
+        validate_numeric(invoice_dict.get('subtotal')),
+        validate_numeric(invoice_dict.get('service_charges')),
+        validate_numeric(invoice_dict.get('net_total')),
+        validate_text(invoice_dict.get('discount')),
+        validate_numeric(invoice_dict.get('tax')),
+        validate_text(invoice_dict.get('tax_rate')),
+        validate_numeric(invoice_dict.get('shipping_costs')),
+        validate_numeric(invoice_dict.get('grand_total')),
         validate_text(invoice_dict.get('currency')),
         validate_text(invoice_dict.get('payment_terms')),
         validate_text(invoice_dict.get('payment_method')),
@@ -129,7 +129,7 @@ def insert_invoice_and_items(invoice_dict, s3_path, items, quantities, prices, u
 
     for item, quantity, price in zip(items, quantities, prices):
         line_item_data = (
-            validate_text(s3_path.split('/')[2]),
+            validate_text(filename),
             invoice_id,
             validate_text(item),
             validate_integer(quantity),

@@ -1,7 +1,7 @@
 import base64
 import requests
 from database_files.sqlite_db import insert_invoice_and_items
-import boto3
+from database_files.local_storage import get_file
 from pdf2image import convert_from_bytes
 from io import BytesIO
 import streamlit as st
@@ -10,15 +10,17 @@ import os
 
 load_dotenv()
 
-BUCKET_NAME = 'invoicegpt-bucket'
-s3_client = boto3.client('s3')
-
 api_key = os.getenv("OPENAI_API_KEY")
 
-def ocr_gpt(s3_path):
-    response = s3_client.get_object(Bucket=BUCKET_NAME, Key=s3_path)
-    file_content = response['Body'].read()
-    if s3_path.lower().endswith('.pdf'):
+def ocr_gpt(file_path):
+    # Get file content from local storage
+    file_content = get_file(file_path)
+    if not file_content:
+        st.error("Could not read file")
+        return
+
+    # Process PDF or image
+    if file_path.lower().endswith('.pdf'):
         images = convert_from_bytes(file_content, dpi=500)
         img_byte_arr = BytesIO()
         images[0].save(img_byte_arr, format='PNG')
@@ -95,5 +97,9 @@ def ocr_gpt(s3_path):
     items = [item.strip() for item in invoice_dict['products_services'].split(',')]
     quantities = [quantity.strip() for quantity in invoice_dict['quantities'].split(',')]
     prices = [price.strip() for price in invoice_dict['unit_prices'].split(',')]
-    insert_invoice_and_items(invoice_dict, s3_path, items, quantities, prices, st.session_state['user_info'].get('email'))
+    
+    # Get filename from file_path (now using the last part of the path)
+    filename = os.path.basename(file_path)
+    
+    insert_invoice_and_items(invoice_dict, filename, items, quantities, prices, st.session_state['user_info'].get('email'))
     return

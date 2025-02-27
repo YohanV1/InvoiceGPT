@@ -3,7 +3,7 @@ from database_files.sqlite_db import create_user_tables
 from utilities.ocr_gptvision import ocr_gpt
 from utilities.authentication import google_auth
 from PIL import Image
-from database_files.invoice_s3_db import upload_to_s3
+from database_files.local_storage import upload_file
 import io
 
 def home_page():
@@ -121,13 +121,13 @@ def home_page():
                                 image.save(img_byte_arr, format=image.format)
                                 img_byte_arr = img_byte_arr.getvalue()
 
-                                s3_path = upload_to_s3(io.BytesIO(img_byte_arr), uploaded_file.name, user_email)
+                                s3_path = upload_file(io.BytesIO(img_byte_arr), uploaded_file.name, user_email)
                                 if s3_path:
                                     ocr_gpt(s3_path)
                             st.success("Image invoice successfully uploaded. Navigate with the sidebar for insights.")
                         elif uploaded_file.type == "application/pdf":
                             with st.spinner("Uploading..."):
-                                s3_path = upload_to_s3(uploaded_file, uploaded_file.name, user_email)
+                                s3_path = upload_file(uploaded_file, uploaded_file.name, user_email)
                                 if s3_path:
                                     ocr_gpt(s3_path)
                             st.success("PDF invoice successfully uploaded. Navigate with the sidebar for insights.")

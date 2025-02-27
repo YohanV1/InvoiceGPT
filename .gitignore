@@ -3,3 +3,4 @@ venv
 .env
 google_creds.json
 invoicegpt_db.db
+uploaded_invoices/
